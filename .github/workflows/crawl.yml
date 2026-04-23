@@ -1,7 +1,10 @@
 name: Crawl ITviec jobs
 
-# Manual-only trigger: Actions tab → Crawl ITviec jobs → Run workflow
 on:
+  # 00:00 UTC = 07:00 ICT (Asia/Ho_Chi_Minh) mỗi ngày
+  schedule:
+    - cron: '0 0 * * *'
+  # Manual trigger: Actions tab → Crawl ITviec jobs → Run workflow
   workflow_dispatch:
 
 permissions:
