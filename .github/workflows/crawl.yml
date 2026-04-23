@@ -58,21 +58,27 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain itviec-jobs.json)" ]; then
-            git add itviec-jobs.json
-            git commit -m "chore: crawl $(date -u +%Y-%m-%d) [skip ci]"
-            # Rebase trước khi push: user có thể đã push commit khác lên main
-            # trong ~20 phút crawl chạy. Retry 3 lần nếu vẫn race.
-            for i in 1 2 3; do
-              git pull --rebase origin main && git push && { echo "✓ Pushed (attempt $i)"; exit 0; }
-              echo "Attempt $i failed, retry in 5s..."
-              sleep 5
-            done
-            echo "::error::Failed to push after 3 attempts"
-            exit 1
-          else
+          if [ -z "$(git status --porcelain itviec-jobs.json)" ]; then
             echo "No changes in itviec-jobs.json, nothing to commit."
+            exit 0
           fi
+          git add itviec-jobs.json
+          git commit -m "chore: crawl $(date -u +%Y-%m-%d) [skip ci]"
+          # Rebase trước khi push: user có thể đã push commit khác lên main
+          # trong ~20 phút crawl chạy. `if` wrapper để bash -e không abort khi
+          # push fail (cho retry chạy được). Retry 3 lần.
+          for i in 1 2 3; do
+            echo "=== Push attempt $i ==="
+            git fetch origin main
+            if git pull --rebase origin main && git push; then
+              echo "✓ Pushed (attempt $i)"
+              exit 0
+            fi
+            echo "⚠ Attempt $i failed, retry in 5s..."
+            sleep 5
+          done
+          echo "::error::Failed to push after 3 attempts"
+          exit 1
 
       # Upload debug artifacts khi fail để debug offline
       - name: Upload state file on failure
