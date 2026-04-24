@@ -165,17 +165,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download itviec-jobs.json (if available)
+      - name: Download itviec-jobs.json
+        if: needs.scrape-jobs.result == 'success'
         uses: actions/download-artifact@v4
         with:
           name: itviec-jobs
-        continue-on-error: true   # bỏ qua nếu jobs scrape bị skip/fail
 
-      - name: Download itviec-companies.json (if available)
+      - name: Download itviec-companies.json
+        if: needs.scrape-companies.result == 'success'
         uses: actions/download-artifact@v4
         with:
           name: itviec-companies
-        continue-on-error: true   # bỏ qua nếu companies scrape bị skip/fail
 
       - name: Commit & push with retry
         run: |
