@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "scrape:jobs": "node scraper.js",
+    "scrape:companies": "node company-scraper.js",
+    "scrape:companies:headful": "node company-scraper.js --headful",
+    "serve": "npx serve .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

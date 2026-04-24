@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ITviec – Danh sách công ty IT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3350;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --accent-soft: rgba(99,102,241,0.15);
+      --green: #22c55e;
+      --green-soft: rgba(34,197,94,0.15);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --radius: 10px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e213a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    header h1 { font-size: 17px; font-weight: 700; color: var(--text); }
+    header .subtitle { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    header .spacer { flex: 1; }
+    #source-info { font-size: 12px; color: var(--muted); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px; font-family: inherit; font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent2); }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-green:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(34,197,94,0.35); }
+
+    /* ── Stats ── */
+    .stats-row {
+      display: flex;
+      gap: 12px;
+      padding: 20px 28px 0;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      min-width: 140px;
+      flex: 1;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--accent); }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+    .stat-value { font-size: 26px; font-weight: 700; margin-top: 4px; background: linear-gradient(135deg, var(--accent2), #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      padding: 16px 28px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 9px 14px 9px 38px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { outline: none; border-color: var(--accent); }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-icon {
+      position: absolute;
+      left: 11px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+      font-size: 15px;
+    }
+    select {
+      padding: 9px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    select:focus { outline: none; border-color: var(--accent); }
+    #result-count { font-size: 13px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+    /* ── Table ── */
+    .table-wrap {
+      margin: 0 28px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      padding: 13px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      transition: color 0.15s;
+    }
+    th:hover { color: var(--accent2); }
+    th.active { color: var(--accent2); }
+    th .sort-icon { margin-left: 4px; opacity: 0.5; }
+    th.active .sort-icon { opacity: 1; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(99,102,241,0.06); }
+    td { padding: 13px 16px; font-size: 13px; }
+
+    .td-stt { color: var(--muted); font-variant-numeric: tabular-nums; width: 56px; }
+    .td-name { font-weight: 600; color: var(--text); }
+    .td-name a { color: var(--accent2); text-decoration: none; transition: color 0.15s; }
+    .td-name a:hover { color: #fff; text-decoration: underline; }
+    .td-address { color: var(--muted); }
+    .td-country {}
+
+    .badge-country {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px; font-weight: 500;
+      background: var(--accent-soft);
+      color: var(--accent2);
+    }
+    .badge-country.vn { background: var(--green-soft); color: var(--green); }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      padding: 20px 28px 28px;
+      flex-wrap: wrap;
+    }
+    .pagination button {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-width: 36px;
+    }
+    .pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent2); }
+    .pagination button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .pagination button:disabled { opacity: 0.35; cursor: not-allowed; }
+    .pagination span { padding: 7px 4px; color: var(--muted); }
+
+    /* ── Loader / Empty ── */
+    #loader {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+    .spinner {
+      display: inline-block;
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #no-file {
+      text-align: center;
+      padding: 60px 28px;
+    }
+    #no-file .icon { font-size: 52px; margin-bottom: 16px; }
+    #no-file h2 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+    #no-file p { color: var(--muted); font-size: 14px; line-height: 1.7; margin-bottom: 8px; }
+    #no-file code {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    #no-file pre {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: left;
+      display: inline-block;
+      margin-top: 12px;
+      color: var(--text);
+    }
+
+    #app { display: none; }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      header { padding: 14px 16px; }
+      .stats-row { padding: 14px 16px 0; }
+      .toolbar { padding: 12px 16px; }
+      .table-wrap { margin: 0 16px 20px; }
+      .pagination { padding: 14px 16px 20px; }
+      td, th { padding: 10px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏢</div>
+    <div>
+      <h1>ITviec – Công ty IT</h1>
+      <div class="subtitle">Danh sách công ty IT được crawl từ itviec.com</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <span id="source-info"></span>
+  <label class="btn btn-ghost" style="cursor:pointer">
+    📂 Load JSON…
+    <input type="file" accept=".json" id="file-input" style="display:none" />
+  </label>
+  <button class="btn btn-green" id="btn-export" style="display:none">
+    ⬇️ Xuất CSV
+  </button>
+</header>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="spinner"></div>
+  <p>Đang tải <code>itviec-companies.json</code>…</p>
+</div>
+
+<!-- No file fallback -->
+<div id="no-file" style="display:none">
+  <div class="icon">📭</div>
+  <h2>Không tìm thấy dữ liệu</h2>
+  <p>Không thể load <code>itviec-companies.json</code> qua <code>fetch()</code>.<br />
+  Trình duyệt chặn fetch khi mở file qua <code>file://</code>.</p>
+  <p>Chạy local server trong thư mục dự án:</p>
+  <pre>npx serve .
+# hoặc:
+python -m http.server 8000</pre>
+  <p style="margin-top:16px">Hoặc nhấn <b>📂 Load JSON…</b> phía trên để chọn file thủ công.</p>
+</div>
+
+<!-- Main app -->
+<div id="app">
+  <!-- Stats -->
+  <div class="stats-row" id="stats-row"></div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="search" id="q" placeholder="Tìm tên công ty, địa chỉ…" />
+    </div>
+    <select id="f-country">
+      <option value="">🌍 Tất cả quốc gia</option>
+    </select>
+    <button class="btn btn-ghost" id="btn-clear">✕ Xoá filter</button>
+    <span id="result-count"></span>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table id="company-table">
+      <thead>
+        <tr>
+          <th class="td-stt" data-col="stt">STT <span class="sort-icon">↕</span></th>
+          <th data-col="name">Tên công ty <span class="sort-icon">↕</span></th>
+          <th data-col="address">Địa chỉ <span class="sort-icon">↕</span></th>
+          <th data-col="country">Quốc gia <span class="sort-icon">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<script>
+  const PAGE_SIZE = 50;
+
+  const state = {
+    all: [],          // raw data từ JSON
+    filtered: [],     // sau khi filter
+    sort: { col: 'stt', dir: 1 },
+    page: 1,
+    filter: { q: '', country: '' },
+  };
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
+    );
+  }
+
+  function norm(s) { return String(s ?? '').toLowerCase(); }
+
+  // ── Stats ──────────────────────────────────────────────────────────────────
+  function renderStats() {
+    const total = state.all.length;
+    const countries = [...new Set(state.all.map(c => c.country).filter(Boolean))];
+    const withAddr = state.all.filter(c => c.address).length;
+    const vnCount = state.all.filter(c => /vietnam|việt nam/i.test(c.country || '')).length;
+
+    const cards = [
+      { label: 'Tổng công ty', value: total.toLocaleString('vi-VN'), sub: 'đã crawl từ itviec' },
+      { label: 'Quốc gia', value: countries.length, sub: 'khác nhau' },
+      { label: 'Có địa chỉ', value: withAddr, sub: `${total ? Math.round(withAddr / total * 100) : 0}% tổng số` },
+      { label: 'Việt Nam', value: vnCount, sub: 'công ty trong nước' },
+    ];
+    document.getElementById('stats-row').innerHTML = cards.map(c => `
+      <div class="stat-card">
+        <div class="stat-label">${esc(c.label)}</div>
+        <div class="stat-value">${esc(c.value)}</div>
+        <div class="stat-sub">${esc(c.sub)}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Filter select options ─────────────────────────────────────────────────
+  function renderCountryOptions() {
+    const countries = [...new Set(state.all.map(c => c.country).filter(Boolean))].sort();
+    document.getElementById('f-country').innerHTML =
+      '<option value="">🌍 Tất cả quốc gia</option>' +
+      countries.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  }
+
+  // ── Filter + Sort ─────────────────────────────────────────────────────────
+  function applyFilter() {
+    const { q, country } = state.filter;
+    const qLow = norm(q);
+    state.filtered = state.all.filter(c => {
+      if (qLow) {
+        const hay = norm(c.name) + ' ' + norm(c.address);
+        if (!hay.includes(qLow)) return false;
+      }
+      if (country && c.country !== country) return false;
+      return true;
+    });
+    applySort();
+  }
+
+  function applySort() {
+    const { col, dir } = state.sort;
+    state.filtered.sort((a, b) => {
+      const av = col === 'stt' ? (a.stt || 0) : norm(a[col]);
+      const bv = col === 'stt' ? (b.stt || 0) : norm(b[col]);
+      if (av < bv) return -dir;
+      if (av > bv) return dir;
+      return 0;
+    });
+  }
+
+  // ── Render table ──────────────────────────────────────────────────────────
+  function renderTable() {
+    const list = state.filtered;
+    const start = (state.page - 1) * PAGE_SIZE;
+    const page = list.slice(start, start + PAGE_SIZE);
+
+    document.getElementById('result-count').textContent =
+      `${list.length.toLocaleString('vi-VN')} kết quả`;
+
+    const isVN = country => /vietnam|việt nam/i.test(country || '');
+
+    const rows = page.map(c => `
+      <tr>
+        <td class="td-stt">${esc(c.stt ?? '')}</td>
+        <td class="td-name">
+          ${c.profileUrl
+            ? `<a href="${esc(c.profileUrl)}" target="_blank" rel="noopener">${esc(c.name || '—')}</a>`
+            : esc(c.name || '—')
+          }
+        </td>
+        <td class="td-address">${esc(c.address || '—')}</td>
+        <td class="td-country">
+          ${c.country
+            ? `<span class="badge-country ${isVN(c.country) ? 'vn' : ''}">${esc(c.country)}</span>`
+            : '<span style="color:var(--muted)">—</span>'
+          }
+        </td>
+      </tr>
+    `).join('');
+
+    document.getElementById('table-body').innerHTML = rows ||
+      `<tr><td colspan="4"><div class="empty-state"><div class="icon">🔍</div><p>Không có kết quả. Thử bỏ bớt filter.</p></div></td></tr>`;
+
+    renderPagination(list.length);
+    updateSortIcons();
+  }
+
+  // ── Pagination ─────────────────────────────────────────────────────────────
+  function renderPagination(total) {
+    const pages = Math.ceil(total / PAGE_SIZE);
+    const cur = state.page;
+    if (pages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+
+    const btn = (p, label = p, extra = '') =>
+      `<button data-page="${p}" ${extra}>${label}</button>`;
+
+    let html = btn(Math.max(1, cur - 1), '‹', cur === 1 ? 'disabled' : '');
+    const win = 2;
+    const from = Math.max(1, cur - win);
+    const to = Math.min(pages, cur + win);
+    if (from > 1) { html += btn(1); if (from > 2) html += '<span>…</span>'; }
+    for (let p = from; p <= to; p++)
+      html += `<button data-page="${p}" class="${p === cur ? 'active' : ''}">${p}</button>`;
+    if (to < pages) { if (to < pages - 1) html += '<span>…</span>'; html += btn(pages); }
+    html += btn(Math.min(pages, cur + 1), '›', cur === pages ? 'disabled' : '');
+
+    document.getElementById('pagination').innerHTML = html;
+  }
+
+  // ── Sort icons ─────────────────────────────────────────────────────────────
+  function updateSortIcons() {
+    document.querySelectorAll('th[data-col]').forEach(th => {
+      const col = th.dataset.col;
+      const icon = th.querySelector('.sort-icon');
+      th.classList.toggle('active', col === state.sort.col);
+      if (icon) {
+        if (col !== state.sort.col) icon.textContent = '↕';
+        else icon.textContent = state.sort.dir === 1 ? '↑' : '↓';
+      }
+    });
+  }
+
+  function renderAll() {
+    applyFilter();
+    renderTable();
+  }
+
+  // ── CSV Export ─────────────────────────────────────────────────────────────
+  function exportCSV() {
+    const rows = [['STT', 'Tên công ty', 'Địa chỉ', 'Quốc gia']];
+    for (const c of state.filtered) {
+      rows.push([
+        c.stt ?? '',
+        c.name ?? '',
+        c.address ?? '',
+        c.country ?? '',
+      ]);
+    }
+    const csvContent = rows.map(r =>
+      r.map(cell => {
+        const s = String(cell ?? '').replace(/"/g, '""');
+        return /[,"\n\r]/.test(s) ? `"${s}"` : s;
+      }).join(',')
+    ).join('\r\n');
+
+    // BOM để Excel đọc đúng UTF-8
+    const bom = '\uFEFF';
+    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const today = new Date().toISOString().slice(0, 10);
+    a.download = `itviec-companies-${today}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Load data ─────────────────────────────────────────────────────────────
+  function loadData(data, label) {
+    // Đảm bảo có STT
+    state.all = data.map((c, i) => ({ stt: c.stt ?? i + 1, ...c }));
+    document.getElementById('source-info').textContent = label;
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('no-file').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('btn-export').style.display = 'inline-flex';
+
+    renderStats();
+    renderCountryOptions();
+    renderAll();
+  }
+
+  // ── Events ─────────────────────────────────────────────────────────────────
+  let qTimer;
+  document.getElementById('q').addEventListener('input', e => {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => {
+      state.filter.q = e.target.value;
+      state.page = 1;
+      renderAll();
+    }, 160);
+  });
+
+  document.getElementById('f-country').addEventListener('change', e => {
+    state.filter.country = e.target.value;
+    state.page = 1;
+    renderAll();
+  });
+
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    state.filter = { q: '', country: '' };
+    state.page = 1;
+    document.getElementById('q').value = '';
+    document.getElementById('f-country').value = '';
+    renderAll();
+  });
+
+  document.getElementById('btn-export').addEventListener('click', exportCSV);
+
+  document.getElementById('company-table').querySelector('thead').addEventListener('click', e => {
+    const th = e.target.closest('th[data-col]');
+    if (!th) return;
+    const col = th.dataset.col;
+    if (state.sort.col === col) state.sort.dir *= -1;
+    else { state.sort.col = col; state.sort.dir = 1; }
+    state.page = 1;
+    renderAll();
+  });
+
+  document.getElementById('pagination').addEventListener('click', e => {
+    const b = e.target.closest('button[data-page]');
+    if (b && !b.disabled) {
+      state.page = parseInt(b.dataset.page);
+      renderTable();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  document.getElementById('file-input').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    f.text().then(t => {
+      const data = JSON.parse(t);
+      if (!Array.isArray(data)) throw new Error('JSON phải là array');
+      loadData(data, `${f.name} · ${data.length.toLocaleString('vi-VN')} công ty`);
+    }).catch(err => alert('Lỗi parse file: ' + err.message));
+  });
+
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  (async () => {
+    try {
+      const res = await fetch('itviec-companies.json');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      loadData(data, `itviec-companies.json · ${data.length.toLocaleString('vi-VN')} công ty`);
+    } catch {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('no-file').style.display = 'block';
+    }
+  })();
+</script>
+</body>
+</html>
