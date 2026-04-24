@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ITviec Scraper – Dashboard</title>
+  <meta name="description" content="Dashboard hiển thị dữ liệu việc làm IT và công ty IT crawl từ itviec.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0b10;
+      --surface: #13151f;
+      --surface2: #1b1e2e;
+      --border: #2a2e45;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 30% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(168,85,247,0.06) 0%, transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 0%, var(--accent2) 50%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 48px;
+      line-height: 1.6;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      text-align: left;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #a855f7);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(99,102,241,0.15);
+    }
+    .card:hover::before { opacity: 1; }
+
+    .card-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .card-icon.jobs { background: rgba(99,102,241,0.15); }
+    .card-icon.companies { background: rgba(34,197,94,0.15); }
+
+    .card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .card .arrow {
+      position: absolute;
+      bottom: 28px;
+      right: 28px;
+      font-size: 20px;
+      color: var(--muted);
+      transition: all 0.3s;
+    }
+    .card:hover .arrow {
+      color: var(--accent2);
+      transform: translateX(4px);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 12px;
+    }
+    .badge.live { background: rgba(34,197,94,0.15); color: var(--green); }
+    .badge.auto { background: rgba(245,158,11,0.15); color: var(--amber); }
+    .badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.8;
+    }
+    footer a {
+      color: var(--accent2);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer a:hover { color: #fff; }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 28px; }
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">📊</div>
+    <h1>ITviec Scraper</h1>
+    <p class="subtitle">
+      Dữ liệu việc làm IT và danh sách công ty IT<br />
+      được crawl tự động từ itviec.com mỗi ngày
+    </p>
+
+    <div class="cards">
+      <a class="card" href="dashboard.html">
+        <div class="card-icon jobs">💼</div>
+        <h2>Jobs Dashboard</h2>
+        <p>Xem toàn bộ tin tuyển dụng IT — tìm kiếm, lọc theo skill, location, salary, working mode.</p>
+        <span class="badge auto"><span class="dot"></span> Cập nhật hàng ngày</span>
+        <span class="arrow">→</span>
+      </a>
+
+      <a class="card" href="companies.html">
+        <div class="card-icon companies">🏢</div>
+        <h2>Companies Dashboard</h2>
+        <p>Danh sách toàn bộ công ty IT — tìm kiếm, lọc theo quốc gia, xuất CSV.</p>
+        <span class="badge live"><span class="dot"></span> Xuất CSV</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    Powered by <a href="https://github.com/kieuvantuyen01/itviec-scraper" target="_blank">kieuvantuyen01/itviec-scraper</a><br />
+    Crawl tự động bằng GitHub Actions · Deploy lên GitHub Pages
+  </footer>
+</body>
+</html>

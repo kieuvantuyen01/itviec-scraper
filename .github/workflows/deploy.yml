@@ -1,0 +1,57 @@
+name: Deploy to GitHub Pages
+
+on:
+  # Deploy khi push code lên main (thay đổi UI/data)
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - '*.json'
+      - '*.css'
+      - '*.js'
+      - '.github/workflows/deploy.yml'
+  # Cho phép workflow khác gọi (crawl xong → deploy)
+  workflow_run:
+    workflows: ["Crawl ITviec"]
+    types: [completed]
+    branches: [main]
+  # Chạy tay
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: 🚀 Deploy Pages
+    runs-on: ubuntu-latest
+    # Chỉ deploy nếu workflow_run thành công, hoặc trigger khác
+    if: |
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload toàn bộ thư mục gốc (HTML + JSON data)
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
