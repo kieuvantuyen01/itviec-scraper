@@ -98,33 +98,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: '20'
-          cache: 'npm'
+          python-version: '3.10'
+          cache: 'pip'
 
-      - run: npm ci
-
-      - name: Install Playwright Chromium
-        run: npx playwright install chromium --with-deps
-
-      - name: Inject login cookies (optional)
-        env:
-          COOKIES_RAW: ${{ secrets.ITVIEC_COOKIES_RAW }}
-        run: |
-          if [ -n "$COOKIES_RAW" ]; then
-            printf '%s' "$COOKIES_RAW" > cookies-raw.txt
-            node build-cookies.js
-            echo "✓ Cookies injected"
-          else
-            echo "⚠ No cookies — sẽ crawl ẩn danh."
-          fi
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
       - name: Remove old company state (fresh crawl every run)
-        run: rm -f itviec-companies-state.json
+        run: rm -f itviec-companies.json itviec-companies.csv
 
       - name: Crawl companies
-        run: node company-scraper.js
+        env:
+          CI: true
+          SCRAPE_METHOD: bs4
+          EXPORT_FORMAT: json
+        run: python scrape.py
 
       - name: Upload itviec-companies.json artifact
         if: always()
